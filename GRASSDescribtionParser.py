@@ -1,11 +1,8 @@
 import os
 import xml.etree.ElementTree
 
-module_names = open(os.path.join("C:\Users","radek","Desktop","grass_modules_names.txt"), "r").read()
 file = open(os.path.join("C:\Users","radek","Desktop","r_covar.xml"), "r")
 # print file.read()
-list_modules = module_names.split()
-print list_modules
 
 tree = xml.etree.ElementTree.parse(os.path.join("C:\Users","radek","Desktop","r_covar.xml"))
 root = tree.getroot()
@@ -27,9 +24,6 @@ elif name[:2] == 'm.':
     print 'Miscellaneous (m.*)'
 else:
     print 'Not in plugin'
-
-
-
 
 for child in root:
     if child.tag == 'parameter':
