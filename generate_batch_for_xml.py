@@ -1,6 +1,6 @@
 import os
 
-module_names = open(os.path.join("C:\Users", "radek", "Desktop", "grass_modules_names.txt"), "r").read()
+module_names = open("grass_modules_names.txt", "r").read()
 
 list_modules = module_names.split()
 
