@@ -1,15 +1,37 @@
-import os
+from __future__ import print_function
 import xml.etree.ElementTree
 
+
 def print_name_desc(modul):
-    print(modul.attrib['name'].strip() + '|' + \
-          modul.find("description").text.strip() + '|'),
+    if child.tag == 'flag':
+        print('-' + modul.attrib['name'].strip() + '|', end='')
+    elif child.tag == 'parameter':
+        print(modul.attrib['name'].strip() + '|', end='')
+    else:
+        pass
+
+    if modul.find("label") is not None:
+        print(modul.find("label").text.strip() + '|', end='')
+    elif modul.find("description") is not None:
+        print(modul.find("description").text.strip() + '|', end='')
+    else:
+        pass
+
+
+def check_default(parameter):
+    for par in parameter:
+        if par.tag == 'default':
+            return True
+
 
 def print_default(parameter):
-    if parameter.tag == 'default':
-        print(parameter.find("default").text.strip() + '|'),
+    if check_default(parameter):
+        for par in parameter:
+            if par.tag == 'default':
+                print(par.text.strip() + '|', end='')
     else:
-        print('None|'),
+        print('None|', end='')
+
 
 def print_optional(parameter):
     if parameter.attrib['required'] == 'yes':
@@ -17,75 +39,100 @@ def print_optional(parameter):
     else:
         print('True')
 
-file = open(os.path.join("C:\Users","radek","Desktop","r_covar.xml"), "r")
-# print file.read()
 
-tree = xml.etree.ElementTree.parse(os.path.join("C:\Users","radek","Desktop","r_covar.xml"))
+tree = xml.etree.ElementTree.parse("v_surf_rst.xml")
 root = tree.getroot()
 
 name = root.attrib['name']
-print name
+print(name)
 
-print tree.find("description").text.strip()
+print(tree.find("description").text.strip())
 
-if name[:5] == 'nviz.': # ????
-    print 'Visualization(NVIZ)' # ????
+if name[:5] == 'nviz.':  # ????
+    print('Visualization(NVIZ)')  # ????
 elif name[:2] == 'r.':
-    print 'Raster (r.*)'
+    print('Raster (r.*)')
 elif name[:2] == 'i.':
-    print 'Imagery (i.*)'
+    print('Imagery (i.*)')
 elif name[:2] == 'v.':
-    print 'Vector (v.*)'
+    print('Vector (v.*)')
 elif name[:2] == 'm.':
-    print 'Miscellaneous (m.*)'
+    print('Miscellaneous (m.*)')
 else:
-    print 'Not in plugin'
+    print('Not in plugin')
 
 for child in root:
     if child.tag == 'parameter':
         if child.attrib['multiple'] == 'yes':
-            print('QgsProcessingParameterMultipleLayers|'),
+            print('QgsProcessingParameterMultipleLayers|', end='')
             print_name_desc(child)
             for k in child:
                 if k.tag == 'gisprompt':
                     if k.attrib['prompt'] == 'raster':
-                        print('TypeRaster|'),
-                        print_default(k)
-                        print_optional(child)
+                        print('TypeRaster|', end='')
                     if k.attrib['prompt'] == 'vector':
-                        print('TypeVector|'),
-                        print_default(k)
-                        print_optional(child)
-
-        if child.attrib['multiple'] == 'no':
-            for k in child:
-                if k.tag == 'gisprompt':
-                    if k.attrib['prompt'] == 'raster':
-                        print('QgsProcessingParameterRasterLayer|'),
-                    if k.attrib['prompt'] == 'vector':
-                        print('QgsProcessingParameterVectorLayer|'),
-                print_name_desc(child)
-                print_default(k)
+                        print('TypeVector|', end='')
+                print_default(child)
                 print_optional(child)
 
-        if child.attrib['type'] == 'string':
+        elif child.attrib['multiple'] == 'no':
             for k in child:
-                if not k.tag.find('gisprompt'):
-                    print(k.tag)
-                    print('QgsProcessingParameterString|'),
-                    print_name_desc(child)
-                    print_default(k)
-                    print('True|')
+                if k.tag == 'gisprompt':
+                    if k.attrib['age'] == 'old':
+                        if k.attrib['prompt'] == 'raster':
+                            print('QgsProcessingParameterRasterLayer|', end='')
+                        elif k.attrib['prompt'] == 'vector':
+                            print('QgsProcessingParameterVectorLayer|', end='')
+                        elif k.attrib['prompt'] == 'dbcolumn':
+                            print('QgsProcessingParameterField|', end='')
+                        else:
+                            print('Not recognized >>> ', end='')
+                        print_name_desc(child)
+                    elif k.attrib['age'] == 'new':
+                        if k.attrib['prompt'] == 'raster':
+                            print('QgsProcessingParameterRasterDestination|', end='')
+                            print_name_desc(child)
+                        elif k.attrib['prompt'] == 'vector':
+                            print('QgsProcessingParameterVectorDestination|', end='')
+                            print_name_desc(child)
+                            print('TypeVector|', end='')
+                        else:
+                            print('Not recognized >>> ', end='')
+                            print_name_desc(child)
+                    print_default(child)
+                    print_optional(child)
 
+        elif child.attrib['type'] == 'string':
+            promt = child.find('gisprompt')
+            if promt is None:
+                print('QgsProcessingParameterString|', end='')
+                print_name_desc(child)
+                print_default(child)
+                print('True|', end='')
+                print_optional(child)
+            else:
+                print('Not recognized >>> ', end='')
+                print_name_desc(child)
 
+        elif child.attrib['type'] == 'integer':
+            print('QgsProcessingParameterNumber|', end='')
+            print_name_desc(child)
+            print('QgsProcessingParameterNumber.Integer|', end='')
+            print_default(child)
+            print_optional(child)
 
-# for child in root:
-#     for k in child:
-#         if k.tag == 'gisprompt':
-#             print(k.tag)
-#             if k.attrib['prompt'] == 'raster':
-#                 print('raster')
-# print root.tag, root.attrib
+        elif child.attrib['type'] == 'float':
+            print('QgsProcessingParameterNumber|', end='')
+            print_name_desc(child)
+            print('QgsProcessingParameterNumber.Double|', end='')
+            print_default(child)
+            print_optional(child)
+        else:
+            print('Not recognized >>> ', end='')
+            print_name_desc(child)
 
-# for atype in root.findall('name'):
-#     print atype
+    elif child.tag == 'flag':
+        print('QgsProcessingParameterBoolean|', end='')
+        print_name_desc(child)
+        print_default(child)
+        print('True')
