@@ -1,6 +1,128 @@
 from __future__ import print_function
 import xml.etree.ElementTree
 
+import os
+import sys
+import subprocess
+import tempfile
+import binascii
+
+def findGRASS():
+    """Find GRASS.
+
+    Find location of GRASS.
+
+    :todo: Avoid bat file calling.
+    """
+    ########### SOFTWARE
+    if sys.platform == 'win32':
+        # qgis_prefix_path = os.environ['QGIS_PREFIX_PATH'] # not working in OSGeo installation
+        # bin_path = os.path.join(os.path.split(
+        #     os.path.split(qgis_prefix_path)[0])[0],
+        #     'bin'
+        # )
+        # grass7bin = None
+        # for grass_version in ['74', '72', '70']:
+        #     gpath = os.path.join(bin_path, 'grass{}.bat'.format(grass_version))
+        #     if os.path.exists(gpath):
+        #         grass7bin = gpath
+        #         break
+        grass7bin = r'C:\OSGeo4W\bin\grass74.bat'
+
+        if grass7bin is None:
+            raise ImportError("No grass74.bat, grass72.bat or grass70.bat found.")
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = subprocess.SW_HIDE
+    else:
+        grass7bin = '/usr/bin/grass'
+    startcmd = [grass7bin, '--config', 'path']
+
+    try:
+        p = subprocess.Popen(startcmd, shell=False,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = p.communicate()
+    except OSError as error:
+        sys.exit("ERROR: Cannot find GRASS GIS start script"
+                 " {cmd}: {error}".format(cmd=startcmd[0], error=error))
+    if p.returncode != 0:
+        sys.exit("ERROR: Issues running GRASS GIS start script"
+                 " {cmd}: {error}"
+                 .format(cmd=' '.join(startcmd), error=err))
+    # p = subprocess.Popen(startcmd,
+    #                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # out, err = p.communicate()
+    #
+    # if p.returncode != 0:
+    #     raise ImportError("Reason: ({cmd}: {reason})".format(
+    #         cmd=startcmd, reason=err)
+    #     )
+
+    str_out = out.decode("utf-8")
+    gisbase = str_out.rstrip(os.linesep)
+
+    # Set GISBASE environment variable
+    os.environ['GISBASE'] = gisbase
+    # define GRASS-Python environment
+    sys.path.append(os.path.join(gisbase, "etc", "python"))
+
+    return grass7bin
+
+try:
+    grass7bin = findGRASS()
+except (StandardError, ImportError) as e:
+    raise ImportError('Unable to find GRASS installation. {}'.format(e))
+
+temp_dir = None
+import grass.script as gscript
+from grass.script import setup as gsetup
+from grass.exceptions import ScriptError
+
+# def set_location():
+#     """Set GRASS gisbase, location and mapset.
+#     """
+
+gisdb = os.path.join(tempfile.gettempdir(), 'grassdata')
+if not os.path.isdir(gisdb):
+    os.mkdir(gisdb)
+
+# location/mapset: use random names for batch jobs
+string_length = 16
+location = binascii.hexlify(os.urandom(string_length))
+mapset   = 'PERMANENT'
+
+# GRASS session must be initialized first
+gsetup.init(os.environ['GISBASE'], gisdb, location, mapset)
+print(gisdb + location + mapset) # for debug
+
+# Create temporal location
+try:
+    gscript.create_location(gisdb, location, overwrite=True)
+except ScriptError as e:
+    raise StandardError('{}'.format(e))
+
+from grass.script import core as gcore
+
+# def find_moduls():
+#     """Find GRASS moduls.
+#     """
+cmds = list(gcore.get_commands()[0])
+cmds.sort()
+file_names = [cmd.replace('.', '_') for cmd in cmds]
+print(len(cmds))
+
+from grass.script import task as gtask
+
+
+# def main():
+#     set_location()
+#     find_moduls()
+gtask.command_info('r.info')
+#
+#
+# if __name__ == "__main__":
+#     main()
+
 
 def print_name_desc(modul, output):
     if child.tag == 'flag':
@@ -56,6 +178,7 @@ def print_name_def_opt(parameter, output):
     print_optional(parameter, output)
 
 
+# def parser():
 desc_file = open('v_surf_rst.txt', 'w+')
 tree = xml.etree.ElementTree.parse("v_surf_rst.xml")
 root = tree.getroot()
