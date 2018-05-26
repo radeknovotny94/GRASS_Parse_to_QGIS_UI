@@ -105,28 +105,19 @@ try:
 except ScriptError as e:
     raise StandardError('{}'.format(e))
 
-from grass.script import core as gcore
 
-# def find_moduls():
-#     """Find GRASS moduls.
-#     """
-cmds = list(gcore.get_commands()[0])
-cmds.sort()
-file_names = [cmd.replace('.', '_') for cmd in cmds]
-print(len(cmds))
-
-from grass.script import task as gtask
 
 
 # def main():
 #     set_location()
 #     find_moduls()
-print(gtask.command_info('r.info'))
+# info = gtask.command_info('v.surf.rst')
+
+
 #
 #
 # if __name__ == "__main__":
 #     main()
-
 
 def print_name_desc(modul, output):
     if child.tag == 'flag':
@@ -182,98 +173,124 @@ def print_name_def_opt(parameter, output):
     print_optional(parameter, output)
 
 
-# def parser():
-desc_file = open('v_surf_rst.txt', 'w+')
-tree = xml.etree.ElementTree.parse("v_surf_rst.xml")
-root = tree.getroot()
+from grass.script import core as gcore
 
-name = root.attrib['name']
-print(name, file=desc_file)
 
-print(tree.find('description').text.strip(), file=desc_file)
+# def find_moduls():
+#     """Find GRASS moduls.
+#     """
+cmds = list(gcore.get_commands()[0])
+cmds.sort()
+# file_names = [cmd.replace('.', '_') for cmd in cmds]
 
-if name[:5] == 'nviz.':  # ????
-    print('Visualization(NVIZ)', file=desc_file)  # ????
-elif name[:2] == 'r.':
-    print('Raster (r.*)', file=desc_file)
-elif name[:2] == 'i.':
-    print('Imagery (i.*)', file=desc_file)
-elif name[:2] == 'v.':
-    print('Vector (v.*)', file=desc_file)
-elif name[:2] == 'm.':
-    print('Miscellaneous (m.*)', file=desc_file)
-else:
-    print('Not in plugin')
+from grass.script import task as gtask
 
-for child in root:
-    if child.tag == 'parameter':
-        if child.attrib['multiple'] == 'yes':
-            print('QgsProcessingParameterMultipleLayers|', end='', file=desc_file)
-            print_name_desc(child, desc_file)
-            for k in child:
-                if k.tag == 'gisprompt':
-                    if k.attrib['prompt'] == 'raster':
-                        print('TypeRaster|', end='', file=desc_file)
-                    if k.attrib['prompt'] == 'vector':
-                        print('TypeVector|', end='', file=desc_file)
-                print_def_opt(child, desc_file)
+for cmd in cmds:
+    try:
+        # def parser():
+        desc_file = open('desc/{}.txt'.format(cmd), 'w+')
+        # xml_file = open('v_surf_rst.txt', 'w+')
+        # print(gtask.get_interface_description('v.surf.rst'), file=xml_file)
+        # print(gtask.get_interface_description('{}'.format(cmd)))
+        root = xml.etree.ElementTree.fromstring(gtask.get_interface_description('{}'.format(cmd)))
+        # print(tree)
+        #
+        # root = tree.getroot()
 
-        elif child.attrib['multiple'] == 'no':
-            for k in child:
-                if k.tag == 'gisprompt':
-                    if k.attrib['age'] == 'old':
-                        if k.attrib['prompt'] == 'raster':
-                            print('QgsProcessingParameterRasterLayer|', end='', file=desc_file)
-                            print_name_def_opt(child, desc_file)
-                        elif k.attrib['prompt'] == 'vector':
-                            print('QgsProcessingParameterVectorLayer|', end='', file=desc_file)
-                            print_name_def_opt(child, desc_file)
-                        elif k.attrib['prompt'] == 'dbcolumn':
-                            print('QgsProcessingParameterField|', end='', file=desc_file)
-                            print_name_def_opt(child, desc_file)
-                        else:
-                            print('Not recognized >>> ', end='')
-                            print(child.attrib['name'].strip())
-                    elif k.attrib['age'] == 'new':
-                        if k.attrib['prompt'] == 'raster':
-                            print('QgsProcessingParameterRasterDestination|', end='', file=desc_file)
-                            print_name_def_opt(child, desc_file)
-                        elif k.attrib['prompt'] == 'vector':
-                            print('QgsProcessingParameterVectorDestination|', end='', file=desc_file)
-                            print_name_desc(child, desc_file)
-                            print('TypeVector|', end='', file=desc_file)
-                            print_def_opt(child, desc_file)
-                        else:
-                            print('Not recognized >>> ', end='')
-                            print(child.attrib['name'].strip())
+        name = root.attrib['name']
+        print(name, file=desc_file)
 
-        elif child.attrib['type'] == 'string':
-            promt = child.find('gisprompt')
-            if promt is None:
-                print('QgsProcessingParameterString|', end='', file=desc_file)
-                print_name_def(child, desc_file)
-                print('True|', end='', file=desc_file)
-                print_optional(child, desc_file)
-            else:
-                print('Not recognized >>> ', end='')
-                print(child.attrib['name'].strip())
+        for child in root:
+            if child.tag == 'label':
+                print(child.text.strip(), end=' ', file=desc_file)
+            if child.tag == 'description':
+                print(child.text.strip(), end=' ', file=desc_file)
 
-        elif child.attrib['type'] == 'integer':
-            print('QgsProcessingParameterNumber|', end='', file=desc_file)
-            print_name_desc(child, desc_file)
-            print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
-            print_def_opt(child, desc_file)
-
-        elif child.attrib['type'] == 'float':
-            print('QgsProcessingParameterNumber|', end='', file=desc_file)
-            print_name_desc(child, desc_file)
-            print('QgsProcessingParameterNumber.Double|', end='', file=desc_file)
-            print_def_opt(child, desc_file)
+        if name[:5] == 'nviz.':  # ????
+            print('Visualization(NVIZ)', file=desc_file)  # ????
+        elif name[:2] == 'r.':
+            print('Raster (r.*)', file=desc_file)
+        elif name[:2] == 'i.':
+            print('Imagery (i.*)', file=desc_file)
+        elif name[:2] == 'v.':
+            print('Vector (v.*)', file=desc_file)
+        elif name[:2] == 'm.':
+            print('Miscellaneous (m.*)', file=desc_file)
         else:
-            print('Not recognized >>> ', end='')
-            print(child.attrib['name'].strip())
+            print('Not in plugin')
 
-    elif child.tag == 'flag':
-        print('QgsProcessingParameterBoolean|', end='', file=desc_file)
-        print_name_def(child, desc_file)
-        print('True', file=desc_file)
+        for child in root:
+            if child.tag == 'parameter':
+                if child.attrib['multiple'] == 'yes':
+                    print('QgsProcessingParameterMultipleLayers|', end='', file=desc_file)
+                    print_name_desc(child, desc_file)
+                    for k in child:
+                        if k.tag == 'gisprompt':
+                            if k.attrib['prompt'] == 'raster':
+                                print('TypeRaster|', end='', file=desc_file)
+                            if k.attrib['prompt'] == 'vector':
+                                print('TypeVector|', end='', file=desc_file)
+                        print_def_opt(child, desc_file)
+
+                elif child.attrib['multiple'] == 'no':
+                    for k in child:
+                        if k.tag == 'gisprompt':
+                            if k.attrib['age'] == 'old':
+                                if k.attrib['prompt'] == 'raster':
+                                    print('QgsProcessingParameterRasterLayer|', end='', file=desc_file)
+                                    print_name_def_opt(child, desc_file)
+                                elif k.attrib['prompt'] == 'vector':
+                                    print('QgsProcessingParameterVectorLayer|', end='', file=desc_file)
+                                    print_name_def_opt(child, desc_file)
+                                elif k.attrib['prompt'] == 'dbcolumn':
+                                    print('QgsProcessingParameterField|', end='', file=desc_file)
+                                    print_name_def_opt(child, desc_file)
+                                else:
+                                    print('Not recognized >>> ', end='')
+                                    print(child.attrib['name'].strip())
+                            elif k.attrib['age'] == 'new':
+                                if k.attrib['prompt'] == 'raster':
+                                    print('QgsProcessingParameterRasterDestination|', end='', file=desc_file)
+                                    print_name_def_opt(child, desc_file)
+                                elif k.attrib['prompt'] == 'vector':
+                                    print('QgsProcessingParameterVectorDestination|', end='', file=desc_file)
+                                    print_name_desc(child, desc_file)
+                                    print('TypeVector|', end='', file=desc_file)
+                                    print_def_opt(child, desc_file)
+                                else:
+                                    print('Not recognized >>> ', end='')
+                                    print(child.attrib['name'].strip())
+
+                elif child.attrib['type'] == 'string':
+                    promt = child.find('gisprompt')
+                    if promt is None:
+                        print('QgsProcessingParameterString|', end='', file=desc_file)
+                        print_name_def(child, desc_file)
+                        print('True|', end='', file=desc_file)
+                        print_optional(child, desc_file)
+                    else:
+                        print('Not recognized >>> ', end='')
+                        print(child.attrib['name'].strip())
+
+                elif child.attrib['type'] == 'integer':
+                    print('QgsProcessingParameterNumber|', end='', file=desc_file)
+                    print_name_desc(child, desc_file)
+                    print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
+                    print_def_opt(child, desc_file)
+
+                elif child.attrib['type'] == 'float':
+                    print('QgsProcessingParameterNumber|', end='', file=desc_file)
+                    print_name_desc(child, desc_file)
+                    print('QgsProcessingParameterNumber.Double|', end='', file=desc_file)
+                    print_def_opt(child, desc_file)
+                else:
+                    print('Not recognized >>> ', end='')
+                    print(child.attrib['name'].strip())
+
+            elif child.tag == 'flag':
+                print('QgsProcessingParameterBoolean|', end='', file=desc_file)
+                print_name_def(child, desc_file)
+                print('True', file=desc_file)
+    except:
+        print('{} - unable to create description'.format(cmd))
+
