@@ -1,0 +1,23 @@
+v.surf.rst
+Spatial approximation and topographic analysis from given point or isoline data in vector format to floating point raster format using regularized spline with tension.
+Vector (v.*)
+QgsProcessingParameterVectorLayer|input|Name of input vector map|None|False
+QgsProcessingParameterField|zcolumn|Name of the attribute column with values to be used for approximation|None|True
+QgsProcessingParameterRasterDestination|elevation|Name for output surface elevation raster map|None|True
+QgsProcessingParameterRasterDestination|slope|Name for output slope raster map|None|True
+QgsProcessingParameterRasterDestination|aspect|Name for output aspect raster map|None|True
+QgsProcessingParameterRasterDestination|pcurvature|Name for output profile curvature raster map|None|True
+QgsProcessingParameterRasterDestination|tcurvature|Name for output tangential curvature raster map|None|True
+QgsProcessingParameterRasterDestination|mcurvature|Name for output mean curvature raster map|None|True
+QgsProcessingParameterVectorDestination|deviations|Name for output deviations vector point map|TypeVector|None|True
+QgsProcessingParameterVectorDestination|cvdev|Name for output cross-validation errors vector point map|TypeVector|None|True
+QgsProcessingParameterVectorDestination|treeseg|Name for output vector map showing quadtree segmentation|TypeVector|None|True
+QgsProcessingParameterVectorDestination|overwin|Name for output vector map showing overlapping windows|TypeVector|None|True
+QgsProcessingParameterRasterLayer|mask|Name of raster map used as mask|None|True
+QgsProcessingParameterBoolean|-c|Perform cross-validation procedure without raster approximation|None|True
+QgsProcessingParameterBoolean|-t|Use scale dependent tension|None|True
+QgsProcessingParameterBoolean|-d|Output partial derivatives instead of topographic parameters|None|True
+QgsProcessingParameterBoolean|-overwrite|Allow output files to overwrite existing files|None|True
+QgsProcessingParameterBoolean|-help|Print usage summary|None|True
+QgsProcessingParameterBoolean|-verbose|Verbose module output|None|True
+QgsProcessingParameterBoolean|-quiet|Quiet module output|None|True

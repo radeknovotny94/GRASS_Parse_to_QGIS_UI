@@ -2,10 +2,14 @@ from __future__ import print_function
 import xml.etree.ElementTree
 
 import os
-import sys
 import subprocess
 import tempfile
 import binascii
+
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 def findGRASS():
     """Find GRASS.
@@ -117,7 +121,7 @@ from grass.script import task as gtask
 # def main():
 #     set_location()
 #     find_moduls()
-gtask.command_info('r.info')
+print(gtask.command_info('r.info'))
 #
 #
 # if __name__ == "__main__":
