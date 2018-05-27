@@ -199,6 +199,7 @@ for cmd in cmds:
 
         name = root.attrib['name']
         print(name, file=desc_file)
+        print(name)
 
         for child in root:
             if child.tag == 'label':
@@ -216,8 +217,20 @@ for cmd in cmds:
             print('Vector (v.*)', file=desc_file)
         elif name[:2] == 'm.':
             print('Miscellaneous (m.*)', file=desc_file)
+        elif name[:2] == 'd.':
+            print('Display (d.*)', file=desc_file)
+        elif name[:3] == 'db.':
+            print('Database (db.*)', file=desc_file)
+        elif name[:3] == 'r3.':
+            print('Raster3D (r3.*)', file=desc_file)
+        elif name[:2] == 't.':
+            print('Temporal (t.*)', file=desc_file)
+        elif name[:3] == 'ps.':
+            print('Postscript (ps.*)', file=desc_file)
+        elif name[:2] == 'g.':
+            print('General (g.*)', file=desc_file)
         else:
-            print('Not in plugin')
+            print('Not in plugin - ' + name)
 
         for child in root:
             if child.tag == 'parameter':
@@ -263,7 +276,7 @@ for cmd in cmds:
 
                 elif child.attrib['type'] == 'string':
                     promt = child.find('gisprompt')
-                    if promt is None:
+                    if promt is None or promt == 'cats':
                         print('QgsProcessingParameterString|', end='', file=desc_file)
                         print_name_def(child, desc_file)
                         print('True|', end='', file=desc_file)
@@ -294,3 +307,4 @@ for cmd in cmds:
     except:
         print('{} - unable to create description'.format(cmd))
 
+# print(gtask.get_interface_description('v.net.connectivity'))
