@@ -9,6 +9,9 @@ First step is creating parser tool which create UI description for QGIS from GRA
 How run this script:
 In this moment script not run on Windows > https://github.com/radeknovotny94/GRASS_Parse_to_QGIS_UI/issues/6
 
-For test just run script - GRASSDescribtionParser.py, it should find QGIS/GRASS installation, find GRASS moduls and create their description for QGIS Processing plugin in folder desc.
+For test:
+1. You have to create 'desc' and 'xml' folder in directory, where you run the script.
+
+2. Just run script - GRASSDescribtionParser.py, it should find QGIS/GRASS installation, find GRASS moduls and create their description for QGIS Processing plugin in folder desc.
 
 
