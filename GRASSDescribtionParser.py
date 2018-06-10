@@ -198,6 +198,10 @@ cmds.sort()
 
 from grass.script import task as gtask
 
+# try to call method get_interface_description, see Issue #7
+if sys.platform == 'win32':
+    gtask.get_interface_description('v.db.update')
+
 for cmd in cmds:
     try:
         # def parser():
