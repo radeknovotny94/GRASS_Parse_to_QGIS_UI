@@ -11,6 +11,8 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+# os.environ['LC_ALL'] = 'C'
+
 def findGRASS():
     """Find GRASS.
 
@@ -67,6 +69,8 @@ def findGRASS():
 
     # Set GISBASE environment variable
     os.environ['GISBASE'] = gisbase
+    # set language to english
+    os.environ['LC_ALL'] = 'C'
     # define GRASS-Python environment
     sys.path.append(os.path.join(gisbase, "etc", "python"))
 
@@ -247,9 +251,13 @@ for cmd in cmds:
 
         for child in root:
             if child.tag == 'label':
-                print(child.text.strip(), end=' ', file=desc_file)
+                label = child.text.strip()
+                label = label.replace('-', '')
+                print(label, end=' ', file=desc_file)
             if child.tag == 'description':
-                print(child.text.strip(), end=' ', file=desc_file)
+                desc = child.text.strip()
+                desc = desc.replace('-', '')
+                print(desc, end=' ', file=desc_file)
         print('', file=desc_file)
         if name[:2] == 'r.':
             print('Raster (r.*)', file=desc_file)
@@ -287,11 +295,22 @@ for cmd in cmds:
                                     else:
                                         pass
                 if child.attrib['type'] == 'integer':
-                    optional(child, desc_file)
-                    print('QgsProcessingParameterNumber|', end='', file=desc_file)
-                    print_name_desc(child, desc_file)
-                    print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
-                    print_def_opt(child, desc_file)
+                    if check_default(child):
+                        for k in child:
+                            if k.tag == 'default':
+                                if ',' not in k.text.strip():
+                                    optional(child, desc_file)
+                                    print('QgsProcessingParameterNumber|', end='', file=desc_file)
+                                    print_name_desc(child, desc_file)
+                                    print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
+                                    print_def_opt(child, desc_file)
+
+                                else:
+                                    optional(child, desc_file)
+                                    print('QgsProcessingParameterRange|', end='', file=desc_file)
+                                    print_name_desc(child, desc_file)
+                                    print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
+                                    print_def_opt(child, desc_file)
 
                 elif child.attrib['type'] == 'float':
                     optional(child, desc_file)
@@ -332,13 +351,13 @@ for cmd in cmds:
                                     print('QgsProcessingParameterMultipleLayers|', end='', file=desc_file)
                                     print_name_desc(child, desc_file)
                                     if k.attrib['prompt'] == 'raster':
-                                        print('TypeRaster|', end='', file=desc_file)
+                                        print('3|', end='', file=desc_file)
                                         print_def_opt(child, desc_file)
                                     elif k.attrib['prompt'] == 'vector':
-                                        print('TypeVector|', end='', file=desc_file)
+                                        print('2|', end='', file=desc_file)
                                         print_def_opt(child, desc_file)
                                     else:
-                                        print('TypeMapLayer|', end='', file=desc_file)
+                                        print('33|', end='', file=desc_file)
                                         print_def_opt(child, desc_file)
                     else:
                         optional(child, desc_file)
@@ -373,13 +392,13 @@ for cmd in cmds:
                                                 or child.attrib['name'] == 'signature':
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterFile|', end='', file=desc_file)
-                                            print_name_def(child, desc_file)
+                                            print_name_desc(child, desc_file)
                                             print('QgsProcessingParameterFile.File|txt|', end='', file=desc_file)
                                             print_def_opt(child, desc_file)
                                         elif k.attrib['prompt'] == 'datasource':
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterFolder|', end='', file=desc_file)
-                                            print_name_def(child, desc_file)
+                                            print_name_desc(child, desc_file)
                                             print('QgsProcessingParameterFile.Folder|None|', end='', file=desc_file)
                                             print_def_opt(child, desc_file)
                                         elif k.attrib['prompt'] == 'group' and child.attrib['name'] != 'subgroup':
@@ -393,10 +412,10 @@ for cmd in cmds:
                                                     print('Input rasters|3|', end='', file=desc_file)
                                                     print_def_opt(child, desc_file)
                                                 elif name[:2] == 'v.':
-                                                    print('Input vectors|TypeVector|', end='', file=desc_file)
+                                                    print('Input vectors|2|', end='', file=desc_file)
                                                     print_def_opt(child, desc_file)
                                                 else:
-                                                    print('Input layers|TypeMapLayer|', end='', file=desc_file)
+                                                    print('Input layers|3|', end='', file=desc_file)
                                                     print_def_opt(child, desc_file)
                                         elif k.attrib['prompt'] == 'separator' or k.attrib['prompt'] == 'color'   \
                                                 or k.attrib['prompt'] == 'cats' or k.attrib['prompt'] == 'dbname' \
