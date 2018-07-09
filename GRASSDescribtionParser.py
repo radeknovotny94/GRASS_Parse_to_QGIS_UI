@@ -262,10 +262,13 @@ for cmd in cmds:
                 label = child.text.strip()
                 label = label.replace('-', '')
                 print(label, end=' ', file=desc_file)
-            if child.tag == 'description':
+            elif child.tag == 'description':
                 desc = child.text.strip()
                 desc = desc.replace('-', '')
                 print(desc, end=' ', file=desc_file)
+            if child.tag == 'keywords':
+                keywords = child.text.strip()
+                print('- ' + keywords, end=' ', file=desc_file)
         print('', file=desc_file)
         if name[:2] == 'r.':
             print('Raster (r.*)', file=desc_file)
