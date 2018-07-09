@@ -241,6 +241,14 @@ for cmd in cmds:
         elif cmd == 'g.parser':
             continue
 
+        # create directories 'xml' and 'desc'
+        xml_dir = r'xml'
+        if not os.path.exists(xml_dir):
+            os.makedirs(xml_dir)
+        desc_dir = r'desc'
+        if not os.path.exists(desc_dir):
+            os.makedirs(desc_dir)
+
         desc_file = open('desc/{}.txt'.format(cmd), 'w+')
         xml_file = open('xml/{}.txt'.format(cmd), 'w+')
         # print(gtask.get_interface_description('v.surf.rst'), file=xml_file)
