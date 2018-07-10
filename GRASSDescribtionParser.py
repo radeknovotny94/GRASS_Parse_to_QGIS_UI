@@ -163,9 +163,9 @@ def optional(parameter, output):
 
 def print_optional(parameter, output):
     if parameter.attrib['required'] == 'yes':
-        print('False', file=output)
+        print('False', end='', file=output)
     else:
-        print('True', file=output)
+        print('True', end='', file=output)
 
 
 def print_name_def(parameter, output):
@@ -315,13 +315,22 @@ for cmd in cmds:
                                     print_name_desc(child, desc_file)
                                     print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
                                     print_def_opt(child, desc_file)
-
+                                    if k.tag == 'values':
+                                        for value in k:
+                                            if value.tag == 'value':
+                                                for name in value:
+                                                    if name.tag == 'name':
+                                                        limits = name.text.strip()
+                                                        print_limits = limits.replace('-', '|')
+                                                        print('|' + print_limits, end='', file=desc_file)
+                                    print('', file=desc_file)
                                 else:
                                     optional(child, desc_file)
                                     print('QgsProcessingParameterRange|', end='', file=desc_file)
                                     print_name_desc(child, desc_file)
                                     print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
                                     print_def_opt(child, desc_file)
+                                    print('', file=desc_file)
 
                 elif child.attrib['type'] == 'float':
                     optional(child, desc_file)
@@ -329,6 +338,16 @@ for cmd in cmds:
                     print_name_desc(child, desc_file)
                     print('QgsProcessingParameterNumber.Double|', end='', file=desc_file)
                     print_def_opt(child, desc_file)
+                    for k in child:
+                        if k.tag == 'values':
+                            for value in k:
+                                if value.tag == 'value':
+                                    for name in value:
+                                        if name.tag == 'name':
+                                            limits = name.text.strip()
+                                            print_limits = limits.replace('-', '|')
+                                            print('|' + print_limits, end='', file=desc_file)
+                    print('', file=desc_file)
                 # else:
                 #     print('Not recognized >>> ', end='')
                 #     print(child.attrib['name'].strip())
@@ -348,6 +367,7 @@ for cmd in cmds:
                     else:
                         print('|False|', end='', file=desc_file)
                     print_def_opt(child, desc_file)
+                    print('', file=desc_file)
                 elif child.attrib['multiple'] == 'yes':
                     if check_tag('gisprompt', child):
                         for k in child:
@@ -357,6 +377,7 @@ for cmd in cmds:
                                     optional(child, desc_file)
                                     print('QgsProcessingParameterField|', end='', file=desc_file)
                                     print_name_def_opt(child, desc_file)
+                                    print('', file=desc_file)
                                 else:
                                     optional(child, desc_file)
                                     print('QgsProcessingParameterMultipleLayers|', end='', file=desc_file)
@@ -370,12 +391,14 @@ for cmd in cmds:
                                     else:
                                         print('33|', end='', file=desc_file)
                                         print_def_opt(child, desc_file)
+                                    print('', file=desc_file)
                     else:
                         optional(child, desc_file)
                         print('QgsProcessingParameterString|', end='', file=desc_file)
                         print_name_def(child, desc_file)
                         print('True|', end='', file=desc_file)
                         print_optional(child, desc_file)
+                        print('', file=desc_file)
 
                         # else:
                         #     print('Input layers|TypeMapLayer|', end='', file=desc_file)
@@ -443,23 +466,27 @@ for cmd in cmds:
                                         else:
                                             print('Not recognized >>> ', end='')
                                             print(child.attrib['name'].strip())
+                                        print('', file=desc_file)
                                     elif k.attrib['age'] == 'new':
                                         if k.attrib['prompt'] == 'raster':
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterRasterDestination|', end='', file=desc_file)
                                             print_name_def_opt(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'vector':
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterVectorDestination|', end='', file=desc_file)
                                             print_name_desc(child, desc_file)
                                             print('TypeVector|', end='', file=desc_file)
                                             print_def_opt(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'file' or k.attrib['prompt'] == 'sigfile':
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterFileDestination|', end='', file=desc_file)
                                             print_name_desc(child, desc_file)
                                             print('Txt files(*.txt)|', end='', file=desc_file)
                                             print_def_opt(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'layer':
                                             pass
                         elif child.attrib['name'] == 'signature':
@@ -468,6 +495,7 @@ for cmd in cmds:
                             print_name_def(child, desc_file)
                             print('QgsProcessingParameterFile.File|txt|', end='', file=desc_file)
                             print_def_opt(child, desc_file)
+                            print('', file=desc_file)
                         else:
                             # print('Not recognized >>> ', end='')
                             # print(child.attrib['name'].strip())
@@ -476,6 +504,7 @@ for cmd in cmds:
                             print_name_def(child, desc_file)
                             print('True|', end='', file=desc_file)
                             print_optional(child, desc_file)
+                            print('', file=desc_file)
 
 
                         # promt = child.find('gisprompt')
