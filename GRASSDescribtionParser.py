@@ -517,7 +517,7 @@ for cmd in cmds:
                         elif child.attrib['name'] == 'signature':
                             optional(child, desc_file)
                             print('QgsProcessingParameterFile|', end='', file=desc_file)
-                            print_name_def(child, desc_file)
+                            print_name_desc(child, desc_file)
                             print('QgsProcessingParameterFile.File|txt|', end='', file=desc_file)
                             print_def_opt(child, desc_file)
                             print('', file=desc_file)
