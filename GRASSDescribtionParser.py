@@ -309,7 +309,14 @@ for cmd in cmds:
                     if check_default(child):
                         for k in child:
                             if k.tag == 'default':
-                                if ',' not in k.text.strip():
+                                if ',' in k.text.strip():
+                                    optional(child, desc_file)
+                                    print('QgsProcessingParameterRange|', end='', file=desc_file)
+                                    print_name_desc(child, desc_file)
+                                    print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
+                                    print_def_opt(child, desc_file)
+                                    print('', file=desc_file)
+                                else:
                                     optional(child, desc_file)
                                     print('QgsProcessingParameterNumber|', end='', file=desc_file)
                                     print_name_desc(child, desc_file)
@@ -324,13 +331,21 @@ for cmd in cmds:
                                                         print_limits = limits.replace('-', '|')
                                                         print('|' + print_limits, end='', file=desc_file)
                                     print('', file=desc_file)
-                                else:
-                                    optional(child, desc_file)
-                                    print('QgsProcessingParameterRange|', end='', file=desc_file)
-                                    print_name_desc(child, desc_file)
-                                    print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
-                                    print_def_opt(child, desc_file)
-                                    print('', file=desc_file)
+                    else:
+                        optional(child, desc_file)
+                        print('QgsProcessingParameterNumber|', end='', file=desc_file)
+                        print_name_desc(child, desc_file)
+                        print('QgsProcessingParameterNumber.Integer|', end='', file=desc_file)
+                        print_def_opt(child, desc_file)
+                        if k.tag == 'values':
+                            for value in k:
+                                if value.tag == 'value':
+                                    for name in value:
+                                        if name.tag == 'name':
+                                            limits = name.text.strip()
+                                            print_limits = limits.replace('-', '|')
+                                            print('|' + print_limits, end='', file=desc_file)
+                        print('', file=desc_file)
 
                 elif child.attrib['type'] == 'float':
                     optional(child, desc_file)
