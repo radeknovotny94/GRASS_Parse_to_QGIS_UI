@@ -429,14 +429,17 @@ for cmd in cmds:
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterRasterLayer|', end='', file=desc_file)
                                             print_name_def_opt(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'vector':
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterVectorLayer|', end='', file=desc_file)
                                             print_name_def_opt(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'dbcolumn':
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterField|', end='', file=desc_file)
                                             print_name_def_opt(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'file' or k.attrib['prompt'] == 'sigfile' \
                                                 or child.attrib['name'] == 'signature':
                                             optional(child, desc_file)
@@ -444,12 +447,14 @@ for cmd in cmds:
                                             print_name_desc(child, desc_file)
                                             print('QgsProcessingParameterFile.File|txt|', end='', file=desc_file)
                                             print_def_opt(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'datasource':
                                             optional(child, desc_file)
                                             print('QgsProcessingParameterFolder|', end='', file=desc_file)
                                             print_name_desc(child, desc_file)
                                             print('QgsProcessingParameterFile.Folder|None|', end='', file=desc_file)
                                             print_def_opt(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'group' and child.attrib['name'] != 'subgroup':
                                             if name == 'i.group':
                                                 optional(child, desc_file)
@@ -460,12 +465,15 @@ for cmd in cmds:
                                                 if name[:2] == 'r.':
                                                     print('Input rasters|3|', end='', file=desc_file)
                                                     print_def_opt(child, desc_file)
+                                                    print('', file=desc_file)
                                                 elif name[:2] == 'v.':
                                                     print('Input vectors|2|', end='', file=desc_file)
                                                     print_def_opt(child, desc_file)
+                                                    print('', file=desc_file)
                                                 else:
                                                     print('Input layers|3|', end='', file=desc_file)
                                                     print_def_opt(child, desc_file)
+                                                    print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'separator' or k.attrib['prompt'] == 'color'   \
                                                 or k.attrib['prompt'] == 'cats' or k.attrib['prompt'] == 'dbname' \
                                                 or k.attrib['prompt'] == 'dbtable':
@@ -474,6 +482,7 @@ for cmd in cmds:
                                             print_name_def(child, desc_file)
                                             print('False|', end='', file=desc_file)
                                             print_optional(child, desc_file)
+                                            print('', file=desc_file)
                                         elif k.attrib['prompt'] == 'layer':
                                             pass
                                         elif k.attrib['prompt'] == 'subgroup' or child.attrib['name'] == 'subgroup':
@@ -481,7 +490,8 @@ for cmd in cmds:
                                         else:
                                             print('Not recognized >>> ', end='')
                                             print(child.attrib['name'].strip())
-                                        print('', file=desc_file)
+                                            print('', file=desc_file)
+
                                     elif k.attrib['age'] == 'new':
                                         if k.attrib['prompt'] == 'raster':
                                             optional(child, desc_file)
